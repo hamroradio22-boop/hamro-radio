@@ -1,0 +1,30 @@
+
+name: Hamro Radio Automation
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  radio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Get Radio Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Packages
+        run: pip install -r requirements.txt
+
+      - name: Run Hamro Radio
+        run: python radio.py
