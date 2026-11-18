@@ -8,6 +8,15 @@ from nepali_calendar import get_calendar_info
 
 TZ = ZoneInfo("Asia/Kathmandu")
 
+CATEGORIES = [
+    "राजनीति",
+    "अर्थतन्त्र",
+    "प्रविधि",
+    "खेलकुद",
+    "मौसम",
+    "अन्य"
+]
+
 def main():
     now = datetime.now(TZ)
 
@@ -25,9 +34,7 @@ def main():
 
     print("\nजम्मा समाचार संख्या:", len(news))
 
-    categories = ["नेपाल", "विश्व", "खेलकुद"]
-
-    for category in categories:
+    for category in CATEGORIES:
         category_news = [
             item for item in news
             if item.get("category") == category
