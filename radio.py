@@ -46,6 +46,7 @@ def create_bulletin(news, calendar, special, now):
     bulletin.append("अब सुन्नुहोस् आजका प्रमुख समाचार।")
     bulletin.append("")
 
+    # आजको पात्रो
     bulletin.append("========== आजको पात्रो ==========")
     bulletin.append("नेपाल समय: " + now.strftime("%I:%M %p"))
     bulletin.append("आजको बार: " + calendar["nepali_day"])
@@ -54,6 +55,7 @@ def create_bulletin(news, calendar, special, now):
     bulletin.append("आजको विशेष दिवस: " + special["special_day"])
     bulletin.append("")
 
+    # चितवन पञ्चाङ्ग
     bulletin.append("========== चितवन पञ्चाङ्ग ==========")
     bulletin.append("आजको तिथि: " + calendar["tithi"])
     bulletin.append("आजको नक्षत्र: " + calendar["nakshatra"])
@@ -62,6 +64,16 @@ def create_bulletin(news, calendar, special, now):
     bulletin.append("सूर्यास्त: " + calendar["sunset"])
     bulletin.append("")
 
+    # शुभ-अशुभ समय
+    bulletin.append("========== शुभ-अशुभ समय ==========")
+    bulletin.append("राहुकाल: " + calendar["rahu_kal"])
+    bulletin.append("यमगण्ड: " + calendar["yamaganda"])
+    bulletin.append("गुलिक काल: " + calendar["gulika"])
+    bulletin.append("अभिजित मुहूर्त: " + calendar["abhijit"])
+    bulletin.append("ब्रह्म मुहूर्त: " + calendar["brahma"])
+    bulletin.append("")
+
+    # समाचार
     bulletin.append("आज प्राप्त समाचार संख्या: " + str(len(news)))
     bulletin.append("")
 
@@ -133,6 +145,13 @@ def main():
     print("योग:", calendar["yoga"])
     print("सूर्योदय:", calendar["sunrise"])
     print("सूर्यास्त:", calendar["sunset"])
+
+    print("\n========== चितवन शुभ-अशुभ समय ==========")
+    print("राहुकाल:", calendar["rahu_kal"])
+    print("यमगण्ड:", calendar["yamaganda"])
+    print("गुलिक काल:", calendar["gulika"])
+    print("अभिजित मुहूर्त:", calendar["abhijit"])
+    print("ब्रह्म मुहूर्त:", calendar["brahma"])
 
     news = get_news()
 
