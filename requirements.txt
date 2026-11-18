@@ -1,0 +1,8 @@
+
+requests
+Pillow
+numpy
+imageio
+imageio-ffmpeg
+feedparser
+pytz
