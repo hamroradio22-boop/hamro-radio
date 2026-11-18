@@ -28,37 +28,61 @@ KEYWORDS = {
     "राजनीति": [
         "politics", "political", "government", "minister",
         "election", "parliament", "president", "prime minister",
-        "party", "opposition", "coalition", "cabinet",
+        "opposition", "coalition", "cabinet", "senate",
+        "sanctions", "diplomatic", "diplomacy", "foreign policy",
+        "war", "military", "army", "ceasefire", "invasion",
+        "airstrike", "missile", "attack", "geopolitical",
+        "trump", "putin", "zelensky", "israel", "palestinian",
+        "ukraine", "russia", "iran", "china", "settlements",
         "राजनीति", "राजनीतिक", "सरकार", "मन्त्री",
         "निर्वाचन", "चुनाव", "संसद", "राष्ट्रपति",
         "प्रधानमन्त्री", "ओली", "देउवा", "प्रचण्ड",
         "एमाले", "कांग्रेस", "माओवादी", "विपक्षी",
-        "सभामुख", "प्रदेशसभा", "सांसद"
+        "सभामुख", "प्रदेशसभा", "सांसद", "प्रतिबन्ध",
+        "कूटनीति", "युद्ध", "सेना", "आक्रमण",
+        "इजरायल", "प्यालेस्टाइन", "युक्रेन", "रुस",
+        "अमेरिका", "चीन", "भारत"
     ],
+
     "अर्थतन्त्र": [
-        "economy", "economic", "business", "market",
-        "bank", "finance", "investment", "stock",
-        "inflation", "budget", "trade", "company",
-        "अर्थतन्त्र", "अर्थव्यवस्था", "आर्थिक",
-        "व्यापार", "बैंक", "लगानी", "सेयर",
-        "बजेट", "महँगी", "मुद्रास्फीति", "राजस्व",
-        "भन्सार", "उद्योग", "व्यवसाय"
+        "economy", "economic growth", "inflation",
+        "interest rate", "stock market", "share market",
+        "stock exchange", "share price", "market price",
+        "central bank", "monetary policy", "fiscal policy",
+        "gross domestic product", "gdp", "revenue",
+        "profit", "loss", "investment", "investor",
+        "banking", "bank", "finance", "budget",
+        "tax", "customs", "remittance", "tourism revenue",
+        "export earnings", "import bill",
+        "अर्थतन्त्र", "अर्थव्यवस्था", "आर्थिक वृद्धि",
+        "मुद्रास्फीति", "ब्याजदर", "सेयर बजार",
+        "सेयर मूल्य", "लगानी", "लगानीकर्ता",
+        "बैंक", "वित्तीय", "बजेट", "राजस्व",
+        "कर", "भन्सार", "रेमिट्यान्स", "नाफा",
+        "घाटा", "आर्थिक"
     ],
+
     "प्रविधि": [
-        "technology", "tech", "artificial intelligence",
-        "software", "smartphone", "mobile", "internet",
-        "computer", "electric vehicle", "robot",
+        "technology", "artificial intelligence",
+        "software", "smartphone", "mobile phone",
+        "internet", "computer", "electric vehicle",
+        "robot", "semiconductor", "chip technology",
+        "cybersecurity", "app launch", "digital technology",
         "प्रविधि", "कृत्रिम बुद्धिमत्ता", "सफ्टवेयर",
         "मोबाइल", "इन्टरनेट", "कम्प्युटर",
-        "विद्युतीय गाडी", "इलेक्ट्रिक कार", "एआई"
+        "विद्युतीय गाडी", "इलेक्ट्रिक कार",
+        "एआई", "रोबोट", "चिप प्रविधि"
     ],
+
     "खेलकुद": [
-        "cricket", "football", "sport", "sports",
-        "match", "tournament", "player", "goal",
-        "tennis", "olympic", "world cup",
+        "cricket", "football", "sports", "sport",
+        "tournament", "player", "goal", "tennis",
+        "olympic", "world cup", "league", "coach",
         "खेलकुद", "खेलाडी", "क्रिकेट", "फुटबल",
-        "विश्वकप", "गोल", "प्रतियोगिता", "टुर्नामेन्ट"
+        "विश्वकप", "गोल", "प्रतियोगिता",
+        "टुर्नामेन्ट", "खेल"
     ],
+
     "मौसम": [
         "weather", "forecast", "rainfall", "rain",
         "storm", "flood", "temperature", "snowfall",
@@ -69,6 +93,19 @@ KEYWORDS = {
     ]
 }
 
+# यी शब्दले अन्तर्राष्ट्रिय/राजनीतिक विषयको संकेत गर्छन्।
+POLITICAL_CONTEXT = [
+    "sanctions", "war", "military", "ceasefire",
+    "invasion", "airstrike", "missile", "attack",
+    "shot dead", "killed", "shooting", "settlements",
+    "government investigation", "foreign policy",
+    "diplomatic", "trump", "putin", "zelensky",
+    "israel", "palestinian", "ukraine", "russia",
+    "iran", "युद्ध", "आक्रमण", "प्रतिबन्ध",
+    "हत्या", "गोली", "इजरायल", "प्यालेस्टाइन",
+    "युक्रेन", "रुस"
+]
+
 
 def clean_text(text):
     text = re.sub(r"<[^>]+>", " ", text or "")
@@ -77,36 +114,103 @@ def clean_text(text):
 
 
 def has_keyword(text, keyword):
+    keyword = keyword.lower()
+
     if re.fullmatch(r"[a-zA-Z0-9 ]+", keyword):
-        pattern = r"(?<![a-zA-Z0-9])" + re.escape(keyword) + r"(?![a-zA-Z0-9])"
+        pattern = (
+            r"(?<![a-zA-Z0-9])"
+            + re.escape(keyword)
+            + r"(?![a-zA-Z0-9])"
+        )
         return re.search(pattern, text, re.IGNORECASE) is not None
 
-    return keyword.lower() in text.lower()
+    return keyword in text.lower()
+
+
+def count_keywords(text, keywords):
+    return sum(
+        1 for word in keywords
+        if has_keyword(text, word)
+    )
 
 
 def classify_news(title, summary, source_url):
-    text = (title + " " + summary).lower()
+    title = title.lower()
+    summary = summary.lower()
     url = source_url.lower()
 
-    # स्रोतअनुसार निश्चित वर्ग
+    # निश्चित स्रोतका वर्ग
     if "feeds.bbci.co.uk/sport/" in url:
         return "खेलकुद"
 
     if "techmandu.com" in url:
         return "प्रविधि"
 
-    # शीर्षक र विवरणका शब्दअनुसार वर्गीकरण
+    # शीर्षकलाई बढी महत्त्व दिने
+    political_title = count_keywords(
+        title, KEYWORDS["राजनीति"]
+    )
+
+    political_summary = count_keywords(
+        summary, KEYWORDS["राजनीति"]
+    )
+
+    economy_title = count_keywords(
+        title, KEYWORDS["अर्थतन्त्र"]
+    )
+
+    economy_summary = count_keywords(
+        summary, KEYWORDS["अर्थतन्त्र"]
+    )
+
+    political_context = count_keywords(
+        title, POLITICAL_CONTEXT
+    )
+
+    tech_title = count_keywords(
+        title, KEYWORDS["प्रविधि"]
+    )
+
+    sports_title = count_keywords(
+        title, KEYWORDS["खेलकुद"]
+    )
+
+    weather_title = count_keywords(
+        title, KEYWORDS["मौसम"]
+    )
+
+    # राजनीति र अन्तर्राष्ट्रिय घटनालाई प्राथमिकता
+    if political_context > 0:
+        return "राजनीति"
+
+    if political_title > 0 and political_title >= economy_title:
+        return "राजनीति"
+
+    # अर्थतन्त्रका स्पष्ट संकेत भएमा मात्र अर्थतन्त्र
+    if economy_title >= 1:
+        return "अर्थतन्त्र"
+
+    if economy_summary >= 2 and political_title == 0:
+        return "अर्थतन्त्र"
+
+    # अन्य विषय
+    if tech_title > 0:
+        return "प्रविधि"
+
+    if sports_title > 0:
+        return "खेलकुद"
+
+    if weather_title > 0:
+        return "मौसम"
+
+    # विवरणमा भएका संकेत
+    full_text = title + " " + summary
+
     for category in [
-        "राजनीति",
-        "अर्थतन्त्र",
-        "प्रविधि",
-        "खेलकुद",
-        "मौसम"
+        "राजनीति", "अर्थतन्त्र",
+        "प्रविधि", "खेलकुद", "मौसम"
     ]:
-        if any(
-            has_keyword(text, word)
-            for word in KEYWORDS[category]
-        ):
+        if count_keywords(full_text, KEYWORDS[category]) >= 2:
             return category
 
     return "अन्य"
@@ -136,7 +240,11 @@ def get_news():
                 if not title or not link:
                     continue
 
-                key = re.sub(r"[^a-z0-9]", "", title.lower())
+                key = re.sub(
+                    r"[^a-z0-9]",
+                    "",
+                    title.lower()
+                )
 
                 if key in seen or link in seen:
                     continue
@@ -176,7 +284,12 @@ def save_news():
     }
 
     with open("news.json", "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=2)
+        json.dump(
+            data,
+            file,
+            ensure_ascii=False,
+            indent=2
+        )
 
     print("\n========== NEWS REPORT ==========")
     print("Total news collected:", len(news))
