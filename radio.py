@@ -1,6 +1,3 @@
-
-import json
-import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -10,35 +7,34 @@ from nepali_calendar import get_calendar_info
 
 TZ = ZoneInfo("Asia/Kathmandu")
 
-def radio_announcement():
+
+def main():
     now = datetime.now(TZ)
-    news = get_news()
+
+    print("========== HAMRO RADIO ==========")
+    print("नेपाल समय:", now.strftime("%I:%M %p"))
+
     calendar = get_calendar_info()
     special = get_special_day()
 
-    print("\n========== HAMRO RADIO ==========")
-    print("नेपाल समय:", now.strftime("%I:%M %p"))
     print("आजको बार:", calendar["nepali_day"])
     print("अंग्रेजी मिति:", calendar["english_date"])
     print("आजको विशेष दिवस:", special["special_day"])
 
+    print("\nआजका मुख्य समाचार:")
+
+    news = get_news()
+
     if news:
-        print("\nआजका मुख्य समाचार:")
         for item in news[:5]:
             print("-", item["title"])
+            print("समाचार लिंक:", item["link"])
+    else:
+        print("अहिले समाचार उपलब्ध छैन।")
 
-    print("================================\n")
+    print("\nHamro Radio को घण्टे अपडेट पूरा भयो।")
+    print("================================")
 
-def main():
-    print("HAMRO RADIO STARTED")
-
-    while True:
-        try:
-            radio_announcement()
-            time.sleep(3600)
-        except Exception as error:
-            print("Radio error:", error)
-            time.sleep(60)
 
 if __name__ == "__main__":
     main()
