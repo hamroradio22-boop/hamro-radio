@@ -20,6 +20,7 @@ NEWS_FEEDS = [
     {"url": "https://rajdhanidaily.com/feed", "region": "नेपाल"},
     {"url": "https://newsofnepal.com/feed", "region": "नेपाल"},
     {"url": "https://techmandu.com/feed", "region": "नेपाल"},
+    {"url": "https://www.thehimalayantimes.com/rssFeed/31", "region": "नेपाल"},
     {"url": "https://feeds.bbci.co.uk/news/world/rss.xml", "region": "विश्व"},
     {"url": "https://feeds.bbci.co.uk/sport/rss.xml", "region": "विश्व"}
 ]
@@ -92,9 +93,11 @@ KEYWORDS = {
         "weather", "forecast", "rainfall", "rain",
         "storm", "flood", "temperature", "snowfall",
         "cyclone", "heatwave", "landslide",
+        "monsoon", "meteorological", "thunderstorm",
         "मौसम", "वर्षा", "बाढी", "पहिरो",
         "हिमपात", "तापक्रम", "हावाहुरी",
-        "चक्रवात", "शीतलहर", "गर्मी"
+        "चक्रवात", "शीतलहर", "गर्मी",
+        "मनसुन", "मौसम पूर्वानुमान"
     ]
 }
 
@@ -143,14 +146,12 @@ def classify_news(title, summary, source_url):
     summary = summary.lower()
     url = source_url.lower()
 
-    # निश्चित स्रोत
     if "feeds.bbci.co.uk/sport/" in url:
         return "खेलकुद"
 
     if "techmandu.com" in url:
         return "प्रविधि"
 
-    # शीर्षकका संकेत
     political = count_keywords(title, KEYWORDS["राजनीति"])
     political_context = count_keywords(title, POLITICAL_CONTEXT)
     economy = count_keywords(title, KEYWORDS["अर्थतन्त्र"])
@@ -158,27 +159,21 @@ def classify_news(title, summary, source_url):
     sports = count_keywords(title, KEYWORDS["खेलकुद"])
     weather = count_keywords(title, KEYWORDS["मौसम"])
 
-    # राजनीतिक घटना र अन्तर्राष्ट्रिय सम्बन्ध
     if political_context > 0 or political > 0:
         return "राजनीति"
 
-    # आर्थिक समाचार
     if economy > 0:
         return "अर्थतन्त्र"
 
-    # प्रविधि
     if technology > 0:
         return "प्रविधि"
 
-    # खेलकुद
     if sports > 0:
         return "खेलकुद"
 
-    # मौसम
     if weather > 0:
         return "मौसम"
 
-    # शीर्षकमा स्पष्ट संकेत नभए विवरण जाँच
     full_text = title + " " + summary
 
     for category in [
