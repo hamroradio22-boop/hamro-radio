@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamro Radio 24/7</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#07152c;
+ color:white;
+ text-align:center;
+}
+header{padding:28px 15px;background:#102c50}
+.logo{font-size:48px}
+h1{margin:8px 0;color:#ffd34e;font-size:32px}
+.tagline{color:#c9d8ee}
+.live{
+ display:inline-block;
+ background:#e32636;
+ padding:7px 18px;
+ border-radius:20px;
+ margin:15px;
+ font-weight:bold;
+}
+main{padding:25px 15px;max-width:650px;margin:auto}
+.player{
+ background:#12365d;
+ padding:28px 18px;
+ border-radius:18px;
+}
+button{
+ border:0;
+ border-radius:35px;
+ padding:15px 35px;
+ background:#ffd34e;
+ color:#07152c;
+ font-size:19px;
+ font-weight:bold;
+ cursor:pointer;
+}
+#status{color:#c9d8ee;margin-top:15px}
+.schedule{
+ margin-top:25px;
+ background:#102c50;
+ border-radius:15px;
+ padding:20px;
+ text-align:left;
+}
+.schedule h2{text-align:center;color:#ffd34e}
+.schedule p{border-bottom:1px solid #34516e;padding:9px}
+footer{padding:25px;color:#aabbd0}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">📻</div>
+<h1>HAMRO RADIO</h1>
+<div class="tagline">हाम्रो आवाज, हाम्रो पहिचान</div>
+<div class="live">● ONLINE RADIO</div>
+</header>
+
+<main>
+<div class="player">
+<h2>Hamro Radio 24/7</h2>
+<p>नेपालको आफ्नै अनलाइन रेडियो</p>
+<button onclick="playRadio()">▶ सुन्नुहोस्</button>
+<p id="status">रेडियो सुरु गर्न Play थिच्नुहोस्।</p>
+<audio id="radio" controls style="width:100%;margin-top:15px"></audio>
+</div>
+
+<div class="schedule">
+<h2>📅 आजको कार्यक्रम</h2>
+<p>४:०० बिहान — भजन</p>
+<p>५:०० बिहान — समाचार बुलेटिन</p>
+<p>६:०० बिहान — उज्यालो ९० नेटवर्क</p>
+<p>७:०० बिहान — पञ्चाङ्ग जानकारी</p>
+<p>८:०० बिहान — समाचार तथा चलचित्र गीत</p>
+<p>९:०० बिहान — उज्यालो समाचार</p>
+<p>१०:०० बिहान — लोकगीत</p>
+<p>११:०० बिहान — नयाँ पप गीत</p>
+<p>१२:०० दिउँसो — हिन्दी गीत</p>
+<p>१:०० दिउँसो — समाचार तथा रिमिक्स</p>
+<p>२:०० दिउँसो — लोकगीत</p>
+<p>३:०० दिउँसो — अंग्रेजी गीत</p>
+<p>४:०० बेलुका — समाचार तथा चलचित्र गीत</p>
+<p>५:०० बेलुका — नेपाली लोकगीत</p>
+<p>६:०० बेलुका — समाचार</p>
+<p>७:०० बेलुका — लोकगीत</p>
+<p>८:०० बेलुका — हिन्दी चलचित्र गीत</p>
+<p>८:४५ राति — BBC नेपाली सेवा</p>
+<p>९:०० राति — आधुनिक गीत</p>
+<p>१०:०० राति — लोकगीत</p>
+<p>११:०० राति — समाचार</p>
+<p>१२:०० राति–४:०० बिहान — मिश्रित गीत</p>
+</div>
+</main>
+
+<footer>
+HAMRO RADIO © 2026<br>
+हाम्रो आवाज, हाम्रो पहिचान
+</footer>
+
+<script>
+function playRadio(){
+ const audio=document.getElementById("radio");
+ document.getElementById("status").innerText=
+ "रेडियो स्ट्रिम जोडिँदैछ...";
+ audio.src="https://stream.zeno.fm/h527zwd11uquv";
+ audio.play().then(()=>{
+  document.getElementById("status").innerText="रेडियो चलिरहेको छ।";
+ }).catch(()=>{
+  document.getElementById("status").innerText=
+  "स्ट्रिम उपलब्ध भएन। पछि फेरि प्रयास गर्नुहोस्।";
+ });
+}
+</script>
+
+</body>
+</html>
