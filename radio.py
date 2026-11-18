@@ -23,24 +23,18 @@ CATEGORIES = [
 def clean_text(value):
     value = str(value or "")
 
-    # HTML entity सफा गर्ने
     for _ in range(3):
         value = html.unescape(value)
 
-    # HTML tag हटाउने
     value = re.sub(r"<[^>]+>", "", value)
 
-    # अधुरो लेखका संकेत हटाउने
     value = re.sub(
-        r"\[\s*(?:…|\.{3})\s*\]",
+        r"\[\s*…\s*\]|\[\s*\.\.\.\s*\]",
         "",
         value
     )
 
-    # HTML बाँकी संकेत हटाउने
     value = re.sub(r"&#\d+;|&[a-zA-Z]+;", "", value)
-
-    # खाली ठाउँ मिलाउने
     value = re.sub(r"\s+", " ", value)
 
     return value.strip()
@@ -57,10 +51,19 @@ def create_bulletin(news, calendar, special, now):
     bulletin.append("नेपाल समय: " + now.strftime("%I:%M %p"))
     bulletin.append("आजको बार: " + calendar["nepali_day"])
     bulletin.append("अंग्रेजी मिति: " + calendar["english_date"])
-    bulletin.append("आजको विशेष दिवस: " + special["special_day"])
+    bulletin.append(
+        "विक्रम संवत्: " +
+        calendar["bikram_sambat_date"]
+    )
+    bulletin.append(
+        "आजको विशेष दिवस: " +
+        special["special_day"]
+    )
     bulletin.append("")
 
-    bulletin.append("आज प्राप्त समाचार संख्या: " + str(len(news)))
+    bulletin.append(
+        "आज प्राप्त समाचार संख्या: " + str(len(news))
+    )
     bulletin.append("")
 
     for category in CATEGORIES:
@@ -92,10 +95,7 @@ def create_bulletin(news, calendar, special, now):
                 )
 
                 if summary and summary != title:
-
-                    # विवरण धेरै लामो भए छोट्याउने
                     summary = summary[:400].strip()
-
                     bulletin.append(summary)
 
                 bulletin.append("")
@@ -125,6 +125,10 @@ def main():
     print("नेपाल समय:", now.strftime("%I:%M %p"))
     print("आजको बार:", calendar["nepali_day"])
     print("अंग्रेजी मिति:", calendar["english_date"])
+    print(
+        "विक्रम संवत्:",
+        calendar["bikram_sambat_date"]
+    )
     print("आजको विशेष दिवस:", special["special_day"])
 
     news = get_news()
@@ -138,7 +142,6 @@ def main():
         now
     )
 
-    # TXT फाइलमा सुरक्षित गर्ने
     with open(
         "bulletin.txt",
         "w",
@@ -146,7 +149,6 @@ def main():
     ) as file:
         file.write(bulletin)
 
-    # GitHub Actions मा देखाउने
     print("\n========== HAMRO RADIO BULLETIN ==========")
     print(bulletin)
 
