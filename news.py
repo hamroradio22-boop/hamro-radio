@@ -28,12 +28,13 @@ KEYWORDS = {
     "राजनीति": [
         "politics", "political", "government", "minister",
         "election", "parliament", "president", "prime minister",
-        "opposition", "coalition", "cabinet", "senate",
-        "sanctions", "diplomatic", "diplomacy", "foreign policy",
+        "opposition", "coalition", "cabinet", "sanctions",
+        "diplomatic", "diplomacy", "foreign policy",
         "war", "military", "army", "ceasefire", "invasion",
         "airstrike", "missile", "attack", "geopolitical",
         "trump", "putin", "zelensky", "israel", "palestinian",
         "ukraine", "russia", "iran", "china", "settlements",
+        "ट्रम्प", "पुटिन", "जेलेन्स्की",
         "राजनीति", "राजनीतिक", "सरकार", "मन्त्री",
         "निर्वाचन", "चुनाव", "संसद", "राष्ट्रपति",
         "प्रधानमन्त्री", "ओली", "देउवा", "प्रचण्ड",
@@ -41,37 +42,41 @@ KEYWORDS = {
         "सभामुख", "प्रदेशसभा", "सांसद", "प्रतिबन्ध",
         "कूटनीति", "युद्ध", "सेना", "आक्रमण",
         "इजरायल", "प्यालेस्टाइन", "युक्रेन", "रुस",
-        "अमेरिका", "चीन", "भारत"
+        "अमेरिका", "चीन", "भारत", "फिलिपिन्स",
+        "सहकार्य", "सम्झौता"
     ],
 
     "अर्थतन्त्र": [
-        "economy", "economic growth", "inflation",
-        "interest rate", "stock market", "share market",
-        "stock exchange", "share price", "market price",
-        "central bank", "monetary policy", "fiscal policy",
-        "gross domestic product", "gdp", "revenue",
-        "profit", "loss", "investment", "investor",
-        "banking", "bank", "finance", "budget",
-        "tax", "customs", "remittance", "tourism revenue",
-        "export earnings", "import bill",
-        "अर्थतन्त्र", "अर्थव्यवस्था", "आर्थिक वृद्धि",
-        "मुद्रास्फीति", "ब्याजदर", "सेयर बजार",
-        "सेयर मूल्य", "लगानी", "लगानीकर्ता",
-        "बैंक", "वित्तीय", "बजेट", "राजस्व",
-        "कर", "भन्सार", "रेमिट्यान्स", "नाफा",
-        "घाटा", "आर्थिक"
+        "economy", "economic", "business", "market",
+        "sales", "soaring sales", "revenue", "earnings",
+        "company profits", "profit", "loss", "investment",
+        "investor", "stock market", "share market",
+        "stock exchange", "share price", "inflation",
+        "interest rate", "central bank", "banking",
+        "finance", "budget", "tax", "customs",
+        "remittance", "export", "imports", "trade",
+        "अर्थतन्त्र", "अर्थव्यवस्था", "आर्थिक",
+        "आर्थिक वृद्धि", "मुद्रास्फीति", "ब्याजदर",
+        "सेयर बजार", "सेयर मूल्य", "लगानी",
+        "लगानीकर्ता", "बैंक", "वित्तीय", "बजेट",
+        "राजस्व", "कर", "भन्सार", "रेमिट्यान्स",
+        "नाफा", "घाटा", "बिक्री", "व्यापार",
+        "आम्दानी", "कम्पनीको कारोबार"
     ],
 
     "प्रविधि": [
-        "technology", "artificial intelligence",
+        "technology", "tech", "artificial intelligence",
         "software", "smartphone", "mobile phone",
         "internet", "computer", "electric vehicle",
         "robot", "semiconductor", "chip technology",
-        "cybersecurity", "app launch", "digital technology",
+        "cybersecurity", "intelligent driving",
+        "autonomous driving", "driver assistance",
+        "self-driving", "driving system",
         "प्रविधि", "कृत्रिम बुद्धिमत्ता", "सफ्टवेयर",
         "मोबाइल", "इन्टरनेट", "कम्प्युटर",
         "विद्युतीय गाडी", "इलेक्ट्रिक कार",
-        "एआई", "रोबोट", "चिप प्रविधि"
+        "एआई", "रोबोट", "चिप प्रविधि",
+        "इन्टेलिजेन्ट ड्राइभिङ", "स्वचालित ड्राइभिङ"
     ],
 
     "खेलकुद": [
@@ -93,17 +98,16 @@ KEYWORDS = {
     ]
 }
 
-# यी शब्दले अन्तर्राष्ट्रिय/राजनीतिक विषयको संकेत गर्छन्।
 POLITICAL_CONTEXT = [
     "sanctions", "war", "military", "ceasefire",
     "invasion", "airstrike", "missile", "attack",
     "shot dead", "killed", "shooting", "settlements",
-    "government investigation", "foreign policy",
-    "diplomatic", "trump", "putin", "zelensky",
-    "israel", "palestinian", "ukraine", "russia",
-    "iran", "युद्ध", "आक्रमण", "प्रतिबन्ध",
-    "हत्या", "गोली", "इजरायल", "प्यालेस्टाइन",
-    "युक्रेन", "रुस"
+    "foreign policy", "diplomatic", "trump", "putin",
+    "zelensky", "israel", "palestinian", "ukraine",
+    "russia", "iran", "ट्रम्प", "पुटिन",
+    "युद्ध", "आक्रमण", "प्रतिबन्ध", "हत्या",
+    "गोली", "इजरायल", "प्यालेस्टाइन",
+    "युक्रेन", "रुस", "कूटनीति"
 ]
 
 
@@ -139,71 +143,42 @@ def classify_news(title, summary, source_url):
     summary = summary.lower()
     url = source_url.lower()
 
-    # निश्चित स्रोतका वर्ग
+    # निश्चित स्रोत
     if "feeds.bbci.co.uk/sport/" in url:
         return "खेलकुद"
 
     if "techmandu.com" in url:
         return "प्रविधि"
 
-    # शीर्षकलाई बढी महत्त्व दिने
-    political_title = count_keywords(
-        title, KEYWORDS["राजनीति"]
-    )
+    # शीर्षकका संकेत
+    political = count_keywords(title, KEYWORDS["राजनीति"])
+    political_context = count_keywords(title, POLITICAL_CONTEXT)
+    economy = count_keywords(title, KEYWORDS["अर्थतन्त्र"])
+    technology = count_keywords(title, KEYWORDS["प्रविधि"])
+    sports = count_keywords(title, KEYWORDS["खेलकुद"])
+    weather = count_keywords(title, KEYWORDS["मौसम"])
 
-    political_summary = count_keywords(
-        summary, KEYWORDS["राजनीति"]
-    )
-
-    economy_title = count_keywords(
-        title, KEYWORDS["अर्थतन्त्र"]
-    )
-
-    economy_summary = count_keywords(
-        summary, KEYWORDS["अर्थतन्त्र"]
-    )
-
-    political_context = count_keywords(
-        title, POLITICAL_CONTEXT
-    )
-
-    tech_title = count_keywords(
-        title, KEYWORDS["प्रविधि"]
-    )
-
-    sports_title = count_keywords(
-        title, KEYWORDS["खेलकुद"]
-    )
-
-    weather_title = count_keywords(
-        title, KEYWORDS["मौसम"]
-    )
-
-    # राजनीति र अन्तर्राष्ट्रिय घटनालाई प्राथमिकता
-    if political_context > 0:
+    # राजनीतिक घटना र अन्तर्राष्ट्रिय सम्बन्ध
+    if political_context > 0 or political > 0:
         return "राजनीति"
 
-    if political_title > 0 and political_title >= economy_title:
-        return "राजनीति"
-
-    # अर्थतन्त्रका स्पष्ट संकेत भएमा मात्र अर्थतन्त्र
-    if economy_title >= 1:
+    # आर्थिक समाचार
+    if economy > 0:
         return "अर्थतन्त्र"
 
-    if economy_summary >= 2 and political_title == 0:
-        return "अर्थतन्त्र"
-
-    # अन्य विषय
-    if tech_title > 0:
+    # प्रविधि
+    if technology > 0:
         return "प्रविधि"
 
-    if sports_title > 0:
+    # खेलकुद
+    if sports > 0:
         return "खेलकुद"
 
-    if weather_title > 0:
+    # मौसम
+    if weather > 0:
         return "मौसम"
 
-    # विवरणमा भएका संकेत
+    # शीर्षकमा स्पष्ट संकेत नभए विवरण जाँच
     full_text = title + " " + summary
 
     for category in [
