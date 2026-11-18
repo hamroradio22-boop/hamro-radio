@@ -1,0 +1,25 @@
+
+{
+  "radio_name": "Hamro Radio",
+  "timezone": "Asia/Kathmandu",
+  "language": "ne",
+  "music_folder": "music",
+  "news_interval_minutes": 60,
+  "time_announcement_interval_minutes": 60,
+  "presenters": {
+    "male": true,
+    "female": true
+  },
+  "features": {
+    "nepali_songs": true,
+    "hourly_news": true,
+    "hourly_time": true,
+    "bikram_sambat_date": true,
+    "english_date": true,
+    "tithi": true,
+    "nakshatra": true,
+    "special_days": true,
+    "auspicious_timings": true,
+    "ai_presenters": true
+  }
+}
