@@ -6,3 +6,4 @@ imageio
 imageio-ffmpeg
 feedparser
 pytz
+nepali-datetime
