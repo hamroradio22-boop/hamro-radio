@@ -3,10 +3,14 @@ import feedparser
 import json
 import re
 import html
-from datetime import datetime
+import calendar
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
+
+# कति समयभित्र प्रकाशित समाचार मात्र लिने?
+MAX_NEWS_AGE_HOURS = 48
 
 NEWS_FEEDS = [
     {"url": "https://www.onlinekhabar.com/feed", "region": "नेपाल"},
@@ -115,9 +119,42 @@ POLITICAL_CONTEXT = [
 
 
 def clean_text(text):
-    text = re.sub(r"<[^>]+>", " ", text or "")
-    text = html.unescape(text)
-    return re.sub(r"\s+", " ", text).strip()
+    text = str(text or "")
+
+    for _ in range(3):
+        text = html.unescape(text)
+
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"\s+", " ", text)
+
+    return text.strip()
+
+
+def get_published_date(entry):
+    """
+    RSS बाट प्रकाशित मिति निकाल्ने।
+    प्रकाशित मिति नभए अपडेट मिति प्रयोग गर्ने।
+    """
+
+    date_value = (
+        entry.get("published_parsed")
+        or entry.get("updated_parsed")
+    )
+
+    if not date_value:
+        return None
+
+    try:
+        timestamp = calendar.timegm(date_value)
+        published = datetime.fromtimestamp(
+            timestamp,
+            timezone.utc
+        )
+
+        return published.astimezone(NEPAL_TZ)
+
+    except (ValueError, TypeError, OverflowError):
+        return None
 
 
 def has_keyword(text, keyword):
@@ -129,7 +166,12 @@ def has_keyword(text, keyword):
             + re.escape(keyword)
             + r"(?![a-zA-Z0-9])"
         )
-        return re.search(pattern, text, re.IGNORECASE) is not None
+
+        return re.search(
+            pattern,
+            text,
+            re.IGNORECASE
+        ) is not None
 
     return keyword in text.lower()
 
@@ -152,12 +194,35 @@ def classify_news(title, summary, source_url):
     if "techmandu.com" in url:
         return "प्रविधि"
 
-    political = count_keywords(title, KEYWORDS["राजनीति"])
-    political_context = count_keywords(title, POLITICAL_CONTEXT)
-    economy = count_keywords(title, KEYWORDS["अर्थतन्त्र"])
-    technology = count_keywords(title, KEYWORDS["प्रविधि"])
-    sports = count_keywords(title, KEYWORDS["खेलकुद"])
-    weather = count_keywords(title, KEYWORDS["मौसम"])
+    political = count_keywords(
+        title,
+        KEYWORDS["राजनीति"]
+    )
+
+    political_context = count_keywords(
+        title,
+        POLITICAL_CONTEXT
+    )
+
+    economy = count_keywords(
+        title,
+        KEYWORDS["अर्थतन्त्र"]
+    )
+
+    technology = count_keywords(
+        title,
+        KEYWORDS["प्रविधि"]
+    )
+
+    sports = count_keywords(
+        title,
+        KEYWORDS["खेलकुद"]
+    )
+
+    weather = count_keywords(
+        title,
+        KEYWORDS["मौसम"]
+    )
 
     if political_context > 0 or political > 0:
         return "राजनीति"
@@ -177,39 +242,83 @@ def classify_news(title, summary, source_url):
     full_text = title + " " + summary
 
     for category in [
-        "राजनीति", "अर्थतन्त्र",
-        "प्रविधि", "खेलकुद", "मौसम"
+        "राजनीति",
+        "अर्थतन्त्र",
+        "प्रविधि",
+        "खेलकुद",
+        "मौसम"
     ]:
-        if count_keywords(full_text, KEYWORDS[category]) >= 2:
+        if count_keywords(
+            full_text,
+            KEYWORDS[category]
+        ) >= 2:
             return category
 
     return "अन्य"
 
 
 def get_news():
+
     all_news = []
     seen = set()
 
+    now = datetime.now(NEPAL_TZ)
+
+    cutoff = now - timedelta(
+        hours=MAX_NEWS_AGE_HOURS
+    )
+
+    old_count = 0
+    undated_count = 0
+    error_count = 0
+
     for source in NEWS_FEEDS:
+
         try:
             feed = feedparser.parse(source["url"])
 
             if feed.bozo and not feed.entries:
                 print("Feed error:", source["url"])
+                error_count += 1
                 continue
 
             if not feed.entries:
                 print("No news:", source["url"])
                 continue
 
-            for entry in feed.entries[:15]:
-                title = clean_text(entry.get("title", ""))
+            for entry in feed.entries[:30]:
+
+                title = clean_text(
+                    entry.get("title", "")
+                )
+
                 link = entry.get("link", "").strip()
-                summary = clean_text(entry.get("summary", ""))
+
+                summary = clean_text(
+                    entry.get("summary", "")
+                    or entry.get("description", "")
+                )
 
                 if not title or not link:
                     continue
 
+                # प्रकाशित मिति जाँच
+                published = get_published_date(entry)
+
+                if published is None:
+                    undated_count += 1
+                    continue
+
+                # ४८ घण्टाभन्दा पुरानो समाचार हटाउने
+                if published < cutoff:
+                    old_count += 1
+                    continue
+
+                # भविष्यको मिति भएको समाचार हटाउने
+                if published > now + timedelta(hours=1):
+                    continue
+
+                # दोहोरिएको समाचार हटाउने
                 key = re.sub(
                     r"[^a-z0-9]",
                     "",
@@ -234,26 +343,57 @@ def get_news():
                     "link": link,
                     "region": source["region"],
                     "category": category,
-                    "source": feed.feed.get("title", "News")
+                    "source": feed.feed.get(
+                        "title",
+                        "News"
+                    ),
+                    "published": published.isoformat()
                 })
 
         except Exception as error:
-            print("News error:", source["url"], error)
+            print(
+                "News error:",
+                source["url"],
+                error
+            )
+
+            error_count += 1
+
+    # नयाँ प्रकाशित समाचार पहिले
+    all_news.sort(
+        key=lambda item: item["published"],
+        reverse=True
+    )
+
+    print("\n========== FILTER REPORT ==========")
+    print("पुराना समाचार हटाइयो:", old_count)
+    print("मिति नभएका समाचार हटाइयो:", undated_count)
+    print("Feed समस्या:", error_count)
+    print("४८ घण्टाभित्रका समाचार:", len(all_news))
+    print("===================================")
 
     return all_news
 
 
 def save_news():
+
     news = get_news()
 
     data = {
         "radio": "Hamro Radio",
-        "updated": datetime.now(NEPAL_TZ).isoformat(),
+        "updated": datetime.now(
+            NEPAL_TZ
+        ).isoformat(),
         "total_news": len(news),
         "news": news
     }
 
-    with open("news.json", "w", encoding="utf-8") as file:
+    with open(
+        "news.json",
+        "w",
+        encoding="utf-8"
+    ) as file:
+
         json.dump(
             data,
             file,
@@ -265,16 +405,23 @@ def save_news():
     print("Total news collected:", len(news))
 
     for category in [
-        "राजनीति", "अर्थतन्त्र", "प्रविधि",
-        "खेलकुद", "मौसम", "अन्य"
+        "राजनीति",
+        "अर्थतन्त्र",
+        "प्रविधि",
+        "खेलकुद",
+        "मौसम",
+        "अन्य"
     ]:
+
         count = sum(
             1 for item in news
             if item["category"] == category
         )
+
         print(category, ":", count)
 
     print("=================================")
+
     return news
 
 
