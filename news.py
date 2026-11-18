@@ -1,39 +1,80 @@
 
 import feedparser
 import json
+import re
+import html
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
 
 NEWS_FEEDS = [
-    "https://www.onlinekhabar.com/feed",
-    "https://www.setopati.com/feed",
+    {
+        "url": "https://www.onlinekhabar.com/feed",
+        "category": "नेपाल"
+    },
+    {
+        "url": "https://www.setopati.com/feed",
+        "category": "नेपाल"
+    },
+    {
+        "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+        "category": "विश्व"
+    },
+    {
+        "url": "https://feeds.bbci.co.uk/sport/rss.xml",
+        "category": "खेलकुद"
+    }
 ]
+
+
+def clean_text(text):
+    text = re.sub(r"<[^>]+>", " ", text or "")
+    text = html.unescape(text)
+    return re.sub(r"\s+", " ", text).strip()
+
 
 def get_news():
     all_news = []
+    seen = set()
 
-    for url in NEWS_FEEDS:
+    for source in NEWS_FEEDS:
         try:
-            feed = feedparser.parse(url)
+            feed = feedparser.parse(source["url"])
 
-            for entry in feed.entries[:10]:
-                title = entry.get("title", "").strip()
+            if feed.bozo and not feed.entries:
+                print("Feed error:", source["url"])
+                continue
+
+            for entry in feed.entries[:15]:
+                title = clean_text(entry.get("title", ""))
                 link = entry.get("link", "").strip()
-                summary = entry.get("summary", "").strip()
+                summary = clean_text(entry.get("summary", ""))
 
-                if title and link:
-                    all_news.append({
-                        "title": title,
-                        "summary": summary,
-                        "link": link
-                    })
+                if not title or not link:
+                    continue
+
+                key = re.sub(r"[^a-z0-9]", "", title.lower())
+
+                if key in seen or link in seen:
+                    continue
+
+                seen.add(key)
+                seen.add(link)
+
+                all_news.append({
+                    "title": title,
+                    "summary": summary,
+                    "link": link,
+                    "category": source["category"],
+                    "source": feed.feed.get("title", "News")
+                })
 
         except Exception as error:
             print("News error:", error)
 
     return all_news
+
 
 def save_news():
     news = get_news()
@@ -50,7 +91,15 @@ def save_news():
 
     print("Total news collected:", len(news))
 
+    for category in ["नेपाल", "विश्व", "खेलकुद"]:
+        count = sum(
+            1 for item in news
+            if item["category"] == category
+        )
+        print(category, ":", count)
+
     return news
+
 
 if __name__ == "__main__":
     save_news()
