@@ -9,31 +9,67 @@ from zoneinfo import ZoneInfo
 NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
 
 NEWS_FEEDS = [
-    # नेपाल समाचार
-    {"url": "https://www.onlinekhabar.com/feed", "category": "नेपाल"},
-    {"url": "https://www.setopati.com/feed", "category": "नेपाल"},
-    {"url": "https://www.ratopati.com/feed", "category": "नेपाल"},
-    {"url": "https://khabarhub.com/feed/", "category": "नेपाल"},
-    {"url": "https://www.lokaantar.com/feed/", "category": "नेपाल"},
-    {"url": "https://nepalsamaya.com/feed", "category": "नेपाल"},
-    {"url": "https://kendrabindu.com/feed", "category": "नेपाल"},
-    {"url": "https://arthasarokar.com/feed", "category": "नेपाल"},
-    {"url": "https://rajdhanidaily.com/feed", "category": "नेपाल"},
-    {"url": "https://newsofnepal.com/feed", "category": "नेपाल"},
-    {"url": "https://techmandu.com/feed", "category": "नेपाल"},
-
-    # विश्व समाचार
-    {"url": "https://feeds.bbci.co.uk/news/world/rss.xml", "category": "विश्व"},
-
-    # खेलकुद समाचार
-    {"url": "https://feeds.bbci.co.uk/sport/rss.xml", "category": "खेलकुद"}
+    {"url": "https://www.onlinekhabar.com/feed", "region": "नेपाल"},
+    {"url": "https://www.setopati.com/feed", "region": "नेपाल"},
+    {"url": "https://www.ratopati.com/feed", "region": "नेपाल"},
+    {"url": "https://khabarhub.com/feed/", "region": "नेपाल"},
+    {"url": "https://www.lokaantar.com/feed/", "region": "नेपाल"},
+    {"url": "https://nepalsamaya.com/feed", "region": "नेपाल"},
+    {"url": "https://kendrabindu.com/feed", "region": "नेपाल"},
+    {"url": "https://arthasarokar.com/feed", "region": "नेपाल"},
+    {"url": "https://rajdhanidaily.com/feed", "region": "नेपाल"},
+    {"url": "https://newsofnepal.com/feed", "region": "नेपाल"},
+    {"url": "https://techmandu.com/feed", "region": "नेपाल"},
+    {"url": "https://feeds.bbci.co.uk/news/world/rss.xml", "region": "विश्व"},
+    {"url": "https://feeds.bbci.co.uk/sport/rss.xml", "region": "विश्व"}
 ]
+
+TOPIC_KEYWORDS = {
+    "खेलकुद": [
+        "cricket", "football", "sport", "match", "player",
+        "tournament", "खेल", "क्रिकेट", "फुटबल", "खेलकुद",
+        "खेलाडी", "विश्वकप", "गोल"
+    ],
+    "मौसम": [
+        "weather", "forecast", "rain", "storm", "flood",
+        "temperature", "climate", "मौसम", "वर्षा", "बाढी",
+        "पहिरो", "हिमपात", "तापक्रम"
+    ],
+    "प्रविधि": [
+        "technology", "tech", "ai", "artificial intelligence",
+        "computer", "mobile", "internet", "software",
+        "technology", "प्रविधि", "मोबाइल", "इन्टरनेट",
+        "कृत्रिम बुद्धिमत्ता", "सफ्टवेयर"
+    ],
+    "अर्थतन्त्र": [
+        "economy", "economic", "business", "market", "bank",
+        "finance", "investment", "stock", "price", "trade",
+        "अर्थतन्त्र", "अर्थव्यवस्था", "व्यापार", "बैंक",
+        "बजार", "लगानी", "सेयर", "मूल्य", "आर्थिक"
+    ],
+    "राजनीति": [
+        "politics", "political", "government", "minister",
+        "election", "parliament", "party", "president",
+        "राजनीति", "सरकार", "मन्त्री", "निर्वाचन",
+        "संसद", "दल", "राष्ट्रपति", "प्रधानमन्त्री"
+    ]
+}
 
 
 def clean_text(text):
     text = re.sub(r"<[^>]+>", " ", text or "")
     text = html.unescape(text)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def classify_news(title, summary):
+    text = (title + " " + summary).lower()
+
+    for category, keywords in TOPIC_KEYWORDS.items():
+        if any(word in text for word in keywords):
+            return category
+
+    return "अन्य"
 
 
 def get_news():
@@ -72,7 +108,8 @@ def get_news():
                     "title": title,
                     "summary": summary,
                     "link": link,
-                    "category": source["category"],
+                    "region": source["region"],
+                    "category": classify_news(title, summary),
                     "source": feed.feed.get("title", "News")
                 })
 
@@ -98,7 +135,10 @@ def save_news():
     print("\n========== NEWS REPORT ==========")
     print("Total news collected:", len(news))
 
-    for category in ["नेपाल", "विश्व", "खेलकुद"]:
+    for category in [
+        "राजनीति", "अर्थतन्त्र", "प्रविधि",
+        "खेलकुद", "मौसम", "अन्य"
+    ]:
         count = sum(
             1 for item in news
             if item["category"] == category
@@ -106,7 +146,6 @@ def save_news():
         print(category, ":", count)
 
     print("=================================")
-
     return news
 
 
