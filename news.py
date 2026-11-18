@@ -24,34 +24,48 @@ NEWS_FEEDS = [
     {"url": "https://feeds.bbci.co.uk/sport/rss.xml", "region": "विश्व"}
 ]
 
-TOPIC_KEYWORDS = {
-    "खेलकुद": [
-        "cricket", "football", "sport", "match", "player",
-        "tournament", "खेल", "क्रिकेट", "फुटबल", "खेलकुद",
-        "खेलाडी", "विश्वकप", "गोल"
-    ],
-    "मौसम": [
-        "weather", "forecast", "rain", "storm", "flood",
-        "temperature", "climate", "मौसम", "वर्षा", "बाढी",
-        "पहिरो", "हिमपात", "तापक्रम"
-    ],
-    "प्रविधि": [
-        "technology", "tech", "ai", "artificial intelligence",
-        "computer", "mobile", "internet", "software",
-        "technology", "प्रविधि", "मोबाइल", "इन्टरनेट",
-        "कृत्रिम बुद्धिमत्ता", "सफ्टवेयर"
-    ],
-    "अर्थतन्त्र": [
-        "economy", "economic", "business", "market", "bank",
-        "finance", "investment", "stock", "price", "trade",
-        "अर्थतन्त्र", "अर्थव्यवस्था", "व्यापार", "बैंक",
-        "बजार", "लगानी", "सेयर", "मूल्य", "आर्थिक"
-    ],
+KEYWORDS = {
     "राजनीति": [
         "politics", "political", "government", "minister",
-        "election", "parliament", "party", "president",
-        "राजनीति", "सरकार", "मन्त्री", "निर्वाचन",
-        "संसद", "दल", "राष्ट्रपति", "प्रधानमन्त्री"
+        "election", "parliament", "president", "prime minister",
+        "party", "opposition", "coalition", "cabinet",
+        "राजनीति", "राजनीतिक", "सरकार", "मन्त्री",
+        "निर्वाचन", "चुनाव", "संसद", "राष्ट्रपति",
+        "प्रधानमन्त्री", "ओली", "देउवा", "प्रचण्ड",
+        "एमाले", "कांग्रेस", "माओवादी", "विपक्षी",
+        "सभामुख", "प्रदेशसभा", "सांसद"
+    ],
+    "अर्थतन्त्र": [
+        "economy", "economic", "business", "market",
+        "bank", "finance", "investment", "stock",
+        "inflation", "budget", "trade", "company",
+        "अर्थतन्त्र", "अर्थव्यवस्था", "आर्थिक",
+        "व्यापार", "बैंक", "लगानी", "सेयर",
+        "बजेट", "महँगी", "मुद्रास्फीति", "राजस्व",
+        "भन्सार", "उद्योग", "व्यवसाय"
+    ],
+    "प्रविधि": [
+        "technology", "tech", "artificial intelligence",
+        "software", "smartphone", "mobile", "internet",
+        "computer", "electric vehicle", "robot",
+        "प्रविधि", "कृत्रिम बुद्धिमत्ता", "सफ्टवेयर",
+        "मोबाइल", "इन्टरनेट", "कम्प्युटर",
+        "विद्युतीय गाडी", "इलेक्ट्रिक कार", "एआई"
+    ],
+    "खेलकुद": [
+        "cricket", "football", "sport", "sports",
+        "match", "tournament", "player", "goal",
+        "tennis", "olympic", "world cup",
+        "खेलकुद", "खेलाडी", "क्रिकेट", "फुटबल",
+        "विश्वकप", "गोल", "प्रतियोगिता", "टुर्नामेन्ट"
+    ],
+    "मौसम": [
+        "weather", "forecast", "rainfall", "rain",
+        "storm", "flood", "temperature", "snowfall",
+        "cyclone", "heatwave", "landslide",
+        "मौसम", "वर्षा", "बाढी", "पहिरो",
+        "हिमपात", "तापक्रम", "हावाहुरी",
+        "चक्रवात", "शीतलहर", "गर्मी"
     ]
 }
 
@@ -62,11 +76,37 @@ def clean_text(text):
     return re.sub(r"\s+", " ", text).strip()
 
 
-def classify_news(title, summary):
-    text = (title + " " + summary).lower()
+def has_keyword(text, keyword):
+    if re.fullmatch(r"[a-zA-Z0-9 ]+", keyword):
+        pattern = r"(?<![a-zA-Z0-9])" + re.escape(keyword) + r"(?![a-zA-Z0-9])"
+        return re.search(pattern, text, re.IGNORECASE) is not None
 
-    for category, keywords in TOPIC_KEYWORDS.items():
-        if any(word in text for word in keywords):
+    return keyword.lower() in text.lower()
+
+
+def classify_news(title, summary, source_url):
+    text = (title + " " + summary).lower()
+    url = source_url.lower()
+
+    # स्रोतअनुसार निश्चित वर्ग
+    if "feeds.bbci.co.uk/sport/" in url:
+        return "खेलकुद"
+
+    if "techmandu.com" in url:
+        return "प्रविधि"
+
+    # शीर्षक र विवरणका शब्दअनुसार वर्गीकरण
+    for category in [
+        "राजनीति",
+        "अर्थतन्त्र",
+        "प्रविधि",
+        "खेलकुद",
+        "मौसम"
+    ]:
+        if any(
+            has_keyword(text, word)
+            for word in KEYWORDS[category]
+        ):
             return category
 
     return "अन्य"
@@ -104,12 +144,18 @@ def get_news():
                 seen.add(key)
                 seen.add(link)
 
+                category = classify_news(
+                    title,
+                    summary,
+                    source["url"]
+                )
+
                 all_news.append({
                     "title": title,
                     "summary": summary,
                     "link": link,
                     "region": source["region"],
-                    "category": classify_news(title, summary),
+                    "category": category,
                     "source": feed.feed.get("title", "News")
                 })
 
