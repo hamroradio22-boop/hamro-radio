@@ -27,13 +27,11 @@ def clean_text(value):
         value = html.unescape(value)
 
     value = re.sub(r"<[^>]+>", "", value)
-
     value = re.sub(
         r"\[\s*…\s*\]|\[\s*\.\.\.\s*\]",
         "",
         value
     )
-
     value = re.sub(r"&#\d+;|&[a-zA-Z]+;", "", value)
     value = re.sub(r"\s+", " ", value)
 
@@ -48,22 +46,23 @@ def create_bulletin(news, calendar, special, now):
     bulletin.append("अब सुन्नुहोस् आजका प्रमुख समाचार।")
     bulletin.append("")
 
+    bulletin.append("========== आजको पात्रो ==========")
     bulletin.append("नेपाल समय: " + now.strftime("%I:%M %p"))
     bulletin.append("आजको बार: " + calendar["nepali_day"])
     bulletin.append("अंग्रेजी मिति: " + calendar["english_date"])
-    bulletin.append(
-        "विक्रम संवत्: " +
-        calendar["bikram_sambat_date"]
-    )
-    bulletin.append(
-        "आजको विशेष दिवस: " +
-        special["special_day"]
-    )
+    bulletin.append("विक्रम संवत्: " + calendar["bikram_sambat_date"])
+    bulletin.append("आजको विशेष दिवस: " + special["special_day"])
     bulletin.append("")
 
-    bulletin.append(
-        "आज प्राप्त समाचार संख्या: " + str(len(news))
-    )
+    bulletin.append("========== चितवन पञ्चाङ्ग ==========")
+    bulletin.append("आजको तिथि: " + calendar["tithi"])
+    bulletin.append("आजको नक्षत्र: " + calendar["nakshatra"])
+    bulletin.append("आजको योग: " + calendar["yoga"])
+    bulletin.append("सूर्योदय: " + calendar["sunrise"])
+    bulletin.append("सूर्यास्त: " + calendar["sunset"])
+    bulletin.append("")
+
+    bulletin.append("आज प्राप्त समाचार संख्या: " + str(len(news)))
     bulletin.append("")
 
     for category in CATEGORIES:
@@ -125,11 +124,15 @@ def main():
     print("नेपाल समय:", now.strftime("%I:%M %p"))
     print("आजको बार:", calendar["nepali_day"])
     print("अंग्रेजी मिति:", calendar["english_date"])
-    print(
-        "विक्रम संवत्:",
-        calendar["bikram_sambat_date"]
-    )
+    print("विक्रम संवत्:", calendar["bikram_sambat_date"])
     print("आजको विशेष दिवस:", special["special_day"])
+
+    print("\n========== चितवन पञ्चाङ्ग ==========")
+    print("तिथि:", calendar["tithi"])
+    print("नक्षत्र:", calendar["nakshatra"])
+    print("योग:", calendar["yoga"])
+    print("सूर्योदय:", calendar["sunrise"])
+    print("सूर्यास्त:", calendar["sunset"])
 
     news = get_news()
 
