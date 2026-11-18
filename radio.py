@@ -1,4 +1,6 @@
 
+import re
+import html
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -17,22 +19,28 @@ CATEGORIES = [
     "अन्य"
 ]
 
+def clean_text(value):
+    value = html.unescape(str(value or ""))
+    value = re.sub(r"<[^>]+>", "", value)
+    value = re.sub(r"\s+", " ", value)
+    return value.strip()
+
 def main():
     now = datetime.now(TZ)
-
-    print("========== HAMRO RADIO ==========")
-    print("नेपाल समय:", now.strftime("%I:%M %p"))
-
     calendar = get_calendar_info()
     special = get_special_day()
-
-    print("आजको बार:", calendar["nepali_day"])
-    print("अंग्रेजी मिति:", calendar["english_date"])
-    print("आजको विशेष दिवस:", special["special_day"])
-
     news = get_news()
 
-    print("\nजम्मा समाचार संख्या:", len(news))
+    bulletin = []
+
+    bulletin.append("नमस्कार, Hamro Radio मा स्वागत छ।")
+    bulletin.append("अब सुन्नुहोस् आजका प्रमुख समाचार।")
+    bulletin.append("")
+    bulletin.append("नेपाल समय: " + now.strftime("%I:%M %p"))
+    bulletin.append("आजको बार: " + calendar["nepali_day"])
+    bulletin.append("अंग्रेजी मिति: " + calendar["english_date"])
+    bulletin.append("आजको विशेष दिवस: " + special["special_day"])
+    bulletin.append("")
 
     for category in CATEGORIES:
         category_news = [
@@ -40,18 +48,38 @@ def main():
             if item.get("category") == category
         ]
 
-        print("\n==========", category, "समाचार ==========")
-        print("समाचार संख्या:", len(category_news))
+        bulletin.append("अब " + category + " समाचार।")
 
         if category_news:
-            for item in category_news[:5]:
-                print("-", item["title"])
-                print("समाचार लिंक:", item["link"])
-        else:
-            print("अहिले समाचार उपलब्ध छैन।")
+            for index, item in enumerate(category_news[:5], 1):
+                title = clean_text(item.get("title"))
+                summary = clean_text(
+                    item.get("summary") or item.get("description")
+                )
 
-    print("\nHamro Radio को घण्टे अपडेट पूरा भयो।")
-    print("================================")
+                bulletin.append(f"समाचार {index}: {title}")
+
+                if summary and summary != title:
+                    bulletin.append(summary[:400])
+
+                bulletin.append("")
+        else:
+            bulletin.append("यस शीर्षकका समाचार अहिले उपलब्ध छैनन्।")
+            bulletin.append("")
+
+    bulletin.append("यी थिए Hamro Radio का आजका समाचार।")
+    bulletin.append("थप समाचारका लागि हामीसँगै रहनुहोस्।")
+    bulletin.append("धन्यवाद।")
+
+    output = "\n".join(bulletin)
+
+    with open("bulletin.txt", "w", encoding="utf-8") as file:
+        file.write(output)
+
+    print("\n========== HAMRO RADIO BULLETIN ==========")
+    print(output)
+    print("\nबुलेटिन फाइल तयार भयो: bulletin.txt")
+    print("==========================================")
 
 if __name__ == "__main__":
     main()
