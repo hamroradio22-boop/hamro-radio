@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
 
 NEWS_FEEDS = [
-    # नेपाली समाचार
+    # नेपाल समाचार
     {"url": "https://www.onlinekhabar.com/feed", "category": "नेपाल"},
     {"url": "https://www.setopati.com/feed", "category": "नेपाल"},
     {"url": "https://www.ratopati.com/feed", "category": "नेपाल"},
@@ -17,6 +17,10 @@ NEWS_FEEDS = [
     {"url": "https://www.lokaantar.com/feed/", "category": "नेपाल"},
     {"url": "https://nepalsamaya.com/feed", "category": "नेपाल"},
     {"url": "https://kendrabindu.com/feed", "category": "नेपाल"},
+    {"url": "https://arthasarokar.com/feed", "category": "नेपाल"},
+    {"url": "https://rajdhanidaily.com/feed", "category": "नेपाल"},
+    {"url": "https://newsofnepal.com/feed", "category": "नेपाल"},
+    {"url": "https://techmandu.com/feed", "category": "नेपाल"},
 
     # विश्व समाचार
     {"url": "https://feeds.bbci.co.uk/news/world/rss.xml", "category": "विश्व"},
@@ -25,10 +29,12 @@ NEWS_FEEDS = [
     {"url": "https://feeds.bbci.co.uk/sport/rss.xml", "category": "खेलकुद"}
 ]
 
+
 def clean_text(text):
     text = re.sub(r"<[^>]+>", " ", text or "")
     text = html.unescape(text)
     return re.sub(r"\s+", " ", text).strip()
+
 
 def get_news():
     all_news = []
@@ -40,6 +46,10 @@ def get_news():
 
             if feed.bozo and not feed.entries:
                 print("Feed error:", source["url"])
+                continue
+
+            if not feed.entries:
+                print("No news:", source["url"])
                 continue
 
             for entry in feed.entries[:15]:
@@ -71,6 +81,7 @@ def get_news():
 
     return all_news
 
+
 def save_news():
     news = get_news()
 
@@ -84,6 +95,7 @@ def save_news():
     with open("news.json", "w", encoding="utf-8") as file:
         json.dump(data, file, ensure_ascii=False, indent=2)
 
+    print("\n========== NEWS REPORT ==========")
     print("Total news collected:", len(news))
 
     for category in ["नेपाल", "विश्व", "खेलकुद"]:
@@ -93,7 +105,10 @@ def save_news():
         )
         print(category, ":", count)
 
+    print("=================================")
+
     return news
+
 
 if __name__ == "__main__":
     save_news()
