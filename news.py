@@ -9,30 +9,26 @@ from zoneinfo import ZoneInfo
 NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
 
 NEWS_FEEDS = [
-    {
-        "url": "https://www.onlinekhabar.com/feed",
-        "category": "नेपाल"
-    },
-    {
-        "url": "https://www.setopati.com/feed",
-        "category": "नेपाल"
-    },
-    {
-        "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
-        "category": "विश्व"
-    },
-    {
-        "url": "https://feeds.bbci.co.uk/sport/rss.xml",
-        "category": "खेलकुद"
-    }
-]
+    # नेपाली समाचार
+    {"url": "https://www.onlinekhabar.com/feed", "category": "नेपाल"},
+    {"url": "https://www.setopati.com/feed", "category": "नेपाल"},
+    {"url": "https://www.ratopati.com/feed", "category": "नेपाल"},
+    {"url": "https://khabarhub.com/feed/", "category": "नेपाल"},
+    {"url": "https://www.lokaantar.com/feed/", "category": "नेपाल"},
+    {"url": "https://nepalsamaya.com/feed", "category": "नेपाल"},
+    {"url": "https://kendrabindu.com/feed", "category": "नेपाल"},
 
+    # विश्व समाचार
+    {"url": "https://feeds.bbci.co.uk/news/world/rss.xml", "category": "विश्व"},
+
+    # खेलकुद समाचार
+    {"url": "https://feeds.bbci.co.uk/sport/rss.xml", "category": "खेलकुद"}
+]
 
 def clean_text(text):
     text = re.sub(r"<[^>]+>", " ", text or "")
     text = html.unescape(text)
     return re.sub(r"\s+", " ", text).strip()
-
 
 def get_news():
     all_news = []
@@ -71,10 +67,9 @@ def get_news():
                 })
 
         except Exception as error:
-            print("News error:", error)
+            print("News error:", source["url"], error)
 
     return all_news
-
 
 def save_news():
     news = get_news()
@@ -99,7 +94,6 @@ def save_news():
         print(category, ":", count)
 
     return news
-
 
 if __name__ == "__main__":
     save_news()
